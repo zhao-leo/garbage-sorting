@@ -14,7 +14,8 @@
       {
         "title": "i2competition",
         "width": 1920,
-        "height": 1080
+        "height": 1080,
+        "fullscreen": true
       }
     ],
     "security": {

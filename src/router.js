@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from './pages/Home.vue'
 import NewPage from './pages/NewPage.vue'
+import Panel from './pages/Panel.vue'
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: '/new-page',
     name: 'NewPage',
     component: NewPage
+  },
+  {
+    path: '/panel',
+    name: 'Panel',
+    component: Panel
   }
 ]
 

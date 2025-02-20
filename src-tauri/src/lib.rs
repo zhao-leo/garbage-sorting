@@ -4,8 +4,7 @@ mod serial;
 use serial::listen_serial;
 
 #[command]
-async fn listen_serial_port(window:AppHandle) -> Result<(), String> {
-    // 配置串口参数
+async fn listen_serial_port(app:AppHandle) -> Result<(), String> {
     println!("Listening to serial port");
     let builder = tokio_serial::new("COM7", 9600)
         .data_bits(tokio_serial::DataBits::Eight)
@@ -15,9 +14,12 @@ async fn listen_serial_port(window:AppHandle) -> Result<(), String> {
         listen_serial(builder, move |data| {
             let received_data = data.to_vec().iter().map(|&c| c as char).collect::<String>();
             println!("Received: {:?}", received_data);
-    
-            // 发送事件到前端
-            window.emit("serial-data-received", received_data).unwrap();
+            if received_data.trim() == "ok" {
+                println!("Received OK signal, stopping...");
+                app.emit("serial-data-received", received_data).unwrap();
+                return true; // 返回 表示停止监听
+            }
+            false // 返回 表示继续监听
         }).await.map_err(|e| e.to_string())
 }
 
