@@ -1,6 +1,6 @@
+use tauri::{AppHandle, Emitter};
 use tokio::io::AsyncReadExt;
-// use tokio_serial::Error as SerialError;
-use tokio_serial::{SerialPortBuilder, SerialPortBuilderExt, SerialStream};
+use tokio_serial::{self, SerialPortBuilder, SerialPortBuilderExt, SerialStream};
 /// 异步监听串口数据的函数
 ///
 /// # 参数
@@ -9,10 +9,7 @@ use tokio_serial::{SerialPortBuilder, SerialPortBuilderExt, SerialStream};
 ///
 /// # 返回
 /// - `Result<(), SerialError>`: 成功时返回 `Ok(())`，出错时返回串口错误
-pub async fn listen_serial<F>(
-    port_builder: SerialPortBuilder,
-    mut callback: F,
-) -> Result<(), String>
+async fn listen_serial<F>(port_builder: SerialPortBuilder, mut callback: F) -> Result<(), String>
 where
     F: FnMut(Vec<u8>) -> bool,
 {
@@ -30,4 +27,26 @@ where
             }
         }
     }
+}
+
+pub async fn listen_serial_port(app: AppHandle) -> Result<(), String> {
+    println!("Listening to serial port");
+    let port = std::env::var("PORT").unwrap();
+    let builder = tokio_serial::new(port, 9600)
+        .data_bits(tokio_serial::DataBits::Eight)
+        .stop_bits(tokio_serial::StopBits::One)
+        .parity(tokio_serial::Parity::None);
+
+    listen_serial(builder, move |data| {
+        let received_data = data.to_vec().iter().map(|&c| c as char).collect::<String>();
+        println!("Received: {:?}", received_data);
+        if received_data.trim() == "ok" {
+            println!("Received OK signal, stopping...");
+            app.emit("serial-data-received", received_data).unwrap();
+            return true; // 返回 表示停止监听
+        }
+        false // 返回 表示继续监听
+    })
+    .await
+    .map_err(|e| e.to_string())
 }
