@@ -25,4 +25,4 @@ serde_json = "1"
 tokio-serial = "5.4.5"
 tokio = "1.43.0"
 opencv = {version = "0.94.2",features = ["clang-runtime"] }
-
+yolo_binding = {path = "./src/yolo_binding"}

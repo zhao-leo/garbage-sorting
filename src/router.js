@@ -6,6 +6,10 @@ import Panel from './pages/Panel.vue'
 const routes = [
   {
     path: '/',
+    redirect: '/panel'  // 添加重定向
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: Home
   },

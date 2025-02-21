@@ -13,9 +13,8 @@
     "windows": [
       {
         "title": "i2competition",
-        "width": 1920,
-        "height": 1080,
-        "fullscreen": true
+        "width": 800,
+        "height": 600
       }
     ],
     "security": {
