@@ -1,0 +1,18 @@
+[package]
+name = "yolo_binding"
+version = "0.2.6"
+edition = "2021"
+license = "MIT"
+description = "A yolo prediction frame with torch-rs "
+repository = "https://github.com/zhao-leo/yolo_binding"
+documentation = "https://yolo-rs.zhaocloud.work/yolo_binding/index.html"
+readme = "readme.md"
+authors = ["zhao-leo <18055219130@163.com>"]
+
+[dependencies]
+tch = {version = "0.19.0",features = ["download-libtorch"]}
+serde_json = "1.0.138"
+image = "0.25.5"
+imageproc = "0.25.0"
+ab_glyph = "0.2.29"
+# winapi = {version = "0.3.9", features = ["libloaderapi"]}
