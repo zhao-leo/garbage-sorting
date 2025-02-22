@@ -6,19 +6,31 @@
     <div class="statistics">
       <div class="stat-item">
         <h3>可回收物</h3>
-        <p>{{ trashCounts.recyclable }}</p>
+        <p>
+          {{ trashCounts.recyclable }}
+        <div v-if="showProgress.recyclable" class="progress-bar"></div>
+        </p>
       </div>
       <div class="stat-item">
         <h3>有害垃圾</h3>
-        <p>{{ trashCounts.harmful }}</p>
+        <p>
+          {{ trashCounts.harmful }}
+        <div v-if="showProgress.harmful" class="progress-bar"></div>
+        </p>
       </div>
       <div class="stat-item">
         <h3>厨余垃圾</h3>
-        <p>{{ trashCounts.kitchen }}</p>
+        <p>
+          {{ trashCounts.kitchen }}
+        <div v-if="showProgress.kitchen" class="progress-bar"></div>
+        </p>
       </div>
       <div class="stat-item">
         <h3>其他垃圾</h3>
-        <p>{{ trashCounts.other }}</p>
+        <p>
+          {{ trashCounts.other }}
+        <div v-if="showProgress.other" class="progress-bar"></div>
+        </p>
       </div>
     </div>
 
@@ -27,21 +39,20 @@
       <h2>最近投放记录</h2>
       <ul>
         <li v-for="(item, index) in trashHistory" :key="index">
-          {{ item.type }} - {{ item.time }}
+          {{ trashHistory.length - index }}. {{ typeToChineseMap[item.type] }}
         </li>
       </ul>
     </div>
-
-    <!-- <router-link to="/home" class="home-link">返回首页</router-link> -->
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted,onUnmounted } from 'vue'
+// import { ref, onMounted,onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
-import { useRouter } from 'vue-router'
+// import { useRouter } from 'vue-router'
 
-const router = useRouter()
+// const router = useRouter()
 const trashCounts = ref({
   recyclable: 0,
   harmful: 0,
@@ -49,17 +60,36 @@ const trashCounts = ref({
   other: 0
 })
 
+const showProgress = ref({
+  recyclable: false,
+  harmful: false,
+  kitchen: false,
+  other: false
+})
+
+const typeToChineseMap = {
+  'recyclable': '可回收物',
+  'harmful': '有害垃圾',
+  'kitchen': '厨余垃圾',
+  'other': '其他垃圾'
+}
+
+
 const trashHistory = ref([])
 const MAX_HISTORY = 20
-let timer = null
-let countdownTimer = null
+// let timer = null
+// let countdownTimer = null
 
 // 添加新的垃圾记录
 const addTrash = (type) => {
   trashCounts.value[type]++
+  showProgress.value[type] = true
+  setTimeout(() => {
+    showProgress.value[type] = false
+  }, 1000)
+
   trashHistory.value.unshift({
-    type: type,
-    time: new Date().toLocaleTimeString()
+    type: type
   })
   if (trashHistory.value.length > MAX_HISTORY) {
     trashHistory.value.pop()
@@ -70,16 +100,16 @@ const addTrash = (type) => {
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 // 开始5分钟倒计时
-const startCountdown = () => {
-  let countdown = 5 * 60 // 5分钟
-  countdownTimer = setInterval(() => {
-    countdown--
-    if (countdown <= 0) {
-      clearInterval(countdownTimer)
-      router.push('/home')
-    }
-  }, 1000)
-}
+// const startCountdown = () => {
+//   let countdown = 1 * 60 // 5分钟
+//   countdownTimer = setInterval(() => {
+//     countdown--
+//     if (countdown <= 0) {
+//       clearInterval(countdownTimer)
+//       router.push('/home')
+//     }
+//   }, 1000)
+// }
 
 // 循环检测功能
 const startDetection = async () => {
@@ -97,24 +127,34 @@ const startDetection = async () => {
       }
 
       // 进行预测
-      const [class_id, confidence, label] = await invoke('predict_image')
-      console.log('预测结果:', { class_id, confidence, label })
-
-      // 如果预测结果为空（假设 class_id < 0 表示无效结果）
-      if (class_id < 0) {
-        clearInterval(timer)
-        startCountdown()
-        break
-      }
+      const [x, y, label_id] = await invoke('predict_image').catch((error) => {
+        console.error('预测过程出错:', error)
+        // clearInterval(timer)
+        // startCountdown()
+        // return
+      })
+      console.log('预测结果:', { x, y, label_id })
 
       // 根据预测结果更新统计
       const typeMap = {
-        0: 'recyclable',
+        0: 'harmful',
         1: 'harmful',
-        2: 'kitchen',
-        3: 'other'
+        2: 'harmful',
+        3: 'kitchen',
+        4: 'kitchen',
+        5: 'kitchen',
+        6: 'kitchen',
+        7: 'kitchen',
+        8: 'other',
+        9: 'other',
+        10: 'other',
+        11: 'recyclable',
+        12: 'recyclable',
+        13: 'recyclable',
+        14: 'recyclable',
+        15: 'recyclable',
       }
-      const type = typeMap[class_id]
+      const type = typeMap[label_id]
       if (type) {
         addTrash(type)
       }
@@ -131,10 +171,10 @@ onMounted(async () => {
 })
 
 // 组件卸载时清理定时器
-onUnmounted(() => {
-  if (timer) clearInterval(timer)
-  if (countdownTimer) clearInterval(countdownTimer)
-})
+// onUnmounted(() => {
+//   if (timer) clearInterval(timer)
+//   if (countdownTimer) clearInterval(countdownTimer)
+// })
 </script>
 
 <style scoped>
@@ -177,10 +217,12 @@ h1 {
 }
 
 .stat-item p {
+  position: relative;
   font-size: 24px;
   font-weight: bold;
   margin: 10px 0 0;
   color: #000000;
+  padding-bottom: 4px;
 }
 
 .history {
@@ -209,6 +251,27 @@ h1 {
   background-color: white;
   margin-bottom: 8px;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 10px;
+  background-color: #4CAF50;
+  animation: progress 1s linear;
+}
+
+@keyframes progress {
+  0% {
+    width: 0;
+  }
+
+  100% {
+    width: 100%;
+  }
 }
 
 .history li:last-child {

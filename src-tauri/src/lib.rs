@@ -14,7 +14,7 @@ fn capture_and_save() -> Result<bool, String> {
 }
 
 #[command]
-async fn predict_image() -> Result<(i64, i64, String), String> {
+async fn predict_image() -> Result<(i64, i64, i64), String> {
     predict::predict_image().await
 }
 
