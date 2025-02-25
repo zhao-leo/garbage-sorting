@@ -2,11 +2,9 @@ use std::ops::Index;
 
 use yolo_binding::core::*;
 
-pub async fn predict_image() -> Result<(i64,i64,i64), String> {
+pub async fn predict_image(model:&YOLO) -> Result<(i64,i64,i64), String> {
     let image_path = std::env::var("TEMP_DIR").unwrap() + "/capture.png";
-    let model_path = std::env::var("MODEL_PATH").unwrap();
-    let model = YOLO::new(&model_path, false);
-    
+
     let image = load_one_image(&image_path).unwrap();
     let output = model.predict(&image).unwrap();
 
@@ -19,4 +17,10 @@ pub async fn predict_image() -> Result<(i64,i64,i64), String> {
     let classes = model.types.clone();
     println!("x0: {}, y0: {}, class: {}", x0, y0, classes.get(&class).unwrap().to_string());
     Ok((*x0,*y0,*class))
+}
+
+pub fn load_model() -> YOLO {
+    let model_path = std::env::var("MODEL_PATH").unwrap();
+    let model = YOLO::new(&model_path, false);
+    model
 }

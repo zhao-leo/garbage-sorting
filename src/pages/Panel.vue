@@ -166,7 +166,11 @@ const startDetection = async () => {
 }
 
 onMounted(async () => {
-  // 开始检测循环
+  await invoke('initialize_model').catch((error) => {
+    console.error('模型初始化失败:', error)
+    // clearInterval(timer)
+    // startCountdown()
+  })
   startDetection()
 })
 
