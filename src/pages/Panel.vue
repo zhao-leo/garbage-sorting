@@ -47,7 +47,6 @@
 </template>
 
 <script setup>
-// import { ref, onMounted,onUnmounted } from 'vue'
 import { ref, onMounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 // import { useRouter } from 'vue-router'
@@ -77,8 +76,6 @@ const typeToChineseMap = {
 
 const trashHistory = ref([])
 const MAX_HISTORY = 20
-// let timer = null
-// let countdownTimer = null
 
 // 添加新的垃圾记录
 const addTrash = (type) => {
@@ -99,18 +96,6 @@ const addTrash = (type) => {
 // 延迟函数
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-// 开始5分钟倒计时
-// const startCountdown = () => {
-//   let countdown = 1 * 60 // 5分钟
-//   countdownTimer = setInterval(() => {
-//     countdown--
-//     if (countdown <= 0) {
-//       clearInterval(countdownTimer)
-//       router.push('/home')
-//     }
-//   }, 1000)
-// }
-
 // 循环检测功能
 const startDetection = async () => {
   while (true) {
@@ -129,9 +114,6 @@ const startDetection = async () => {
       // 进行预测
       const [x, y, label_id] = await invoke('predict_image').catch((error) => {
         console.error('预测过程出错:', error)
-        // clearInterval(timer)
-        // startCountdown()
-        // return
       })
       console.log('预测结果:', { x, y, label_id })
 
@@ -168,17 +150,9 @@ const startDetection = async () => {
 onMounted(async () => {
   await invoke('initialize_model').catch((error) => {
     console.error('模型初始化失败:', error)
-    // clearInterval(timer)
-    // startCountdown()
   })
   startDetection()
 })
-
-// 组件卸载时清理定时器
-// onUnmounted(() => {
-//   if (timer) clearInterval(timer)
-//   if (countdownTimer) clearInterval(countdownTimer)
-// })
 </script>
 
 <style scoped>
