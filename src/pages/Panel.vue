@@ -40,6 +40,13 @@
       </ul>
     </div>
   </div>
+  <div v-if="showAlert" class="alert-overlay">
+    <div class="alert-box">
+      <h2>警告</h2>
+      <p>垃圾箱已满载！</p>
+      <button @click="showAlert = false">确定</button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -72,7 +79,7 @@ const typeToChineseMap = {
 
 const trashHistory = ref([])
 const MAX_HISTORY = 10
-
+const showAlert = ref(false)
 // 添加新的垃圾记录
 const addTrash = (type) => {
   trashCounts.value[type]++
@@ -103,7 +110,7 @@ const startDetection = async () => {
       }
 
       // 进行预测
-      const [x, y, label_id,trash_number] = await invoke('predict_image').catch((error) => {
+      const [x, y, label_id, trash_number] = await invoke('predict_image').catch((error) => {
         console.error('预测过程出错:', error)
       })
       console.log('预测结果:', { x, y, label_id })
@@ -130,10 +137,15 @@ const startDetection = async () => {
       const type = typeMap[label_id]
       if (type) {
         const flag = typeToNumber[type]
+        let result
         if (trash_number == 1) {
-          await invoke('broad',{flag:flag})
+          result = await invoke('broad', { flag: flag })
         } else {
-          await invoke('xy_run',{x: x,y: y,flag:flag})
+          result = await invoke('xy_run', { x: x, y: y, flag: flag })
+        }
+
+        if (result === "loaded") {
+          showAlert.value = true
         }
         addTrash(type)
       }
@@ -149,7 +161,7 @@ onMounted(async () => {
     console.error('模型初始化失败:', error)
   })
   await invoke('xy_init').catch((error) => {
-    console.error('XY-CORTEX-ERROR',error)
+    console.error('XY-CORTEX-ERROR', error)
   })
   startDetection()
 })
@@ -255,5 +267,71 @@ h1 {
   background-color: #e0e0e0;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.alert-box {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  animation: bounce-in 0.5s;
+}
+
+.alert-box h2 {
+  color: #ff4444;
+  margin: 0 0 10px 0;
+  font-size: 24px;
+}
+
+.alert-box p {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.alert-box button {
+  padding: 8px 20px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.alert-box button:hover {
+  background-color: #ff6666;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>
