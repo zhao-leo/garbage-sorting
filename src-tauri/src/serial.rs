@@ -1,3 +1,4 @@
+#![allow(unused)]
 use tauri::{AppHandle, Emitter};
 use tokio::io::AsyncReadExt;
 use tokio_serial::{self, SerialPortBuilder, SerialPortBuilderExt, SerialStream};

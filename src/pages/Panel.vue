@@ -8,28 +8,24 @@
         <h3>可回收物</h3>
         <p>
           {{ trashCounts.recyclable }}
-        <div v-if="showProgress.recyclable" class="progress-bar"></div>
         </p>
       </div>
       <div class="stat-item">
         <h3>有害垃圾</h3>
         <p>
           {{ trashCounts.harmful }}
-        <div v-if="showProgress.harmful" class="progress-bar"></div>
         </p>
       </div>
       <div class="stat-item">
         <h3>厨余垃圾</h3>
         <p>
           {{ trashCounts.kitchen }}
-        <div v-if="showProgress.kitchen" class="progress-bar"></div>
         </p>
       </div>
       <div class="stat-item">
         <h3>其他垃圾</h3>
         <p>
           {{ trashCounts.other }}
-        <div v-if="showProgress.other" class="progress-bar"></div>
         </p>
       </div>
     </div>
@@ -59,12 +55,12 @@ const trashCounts = ref({
   other: 0
 })
 
-const showProgress = ref({
-  recyclable: false,
-  harmful: false,
-  kitchen: false,
-  other: false
-})
+const typeToNumber = {
+  'harmful': 1,
+  'kitchen': 2,
+  'other': 3,
+  'recyclable': 4
+}
 
 const typeToChineseMap = {
   'recyclable': '可回收物',
@@ -75,16 +71,11 @@ const typeToChineseMap = {
 
 
 const trashHistory = ref([])
-const MAX_HISTORY = 20
+const MAX_HISTORY = 10
 
 // 添加新的垃圾记录
 const addTrash = (type) => {
   trashCounts.value[type]++
-  showProgress.value[type] = true
-  setTimeout(() => {
-    showProgress.value[type] = false
-  }, 1000)
-
   trashHistory.value.unshift({
     type: type
   })
@@ -112,7 +103,7 @@ const startDetection = async () => {
       }
 
       // 进行预测
-      const [x, y, label_id] = await invoke('predict_image').catch((error) => {
+      const [x, y, label_id,trash_number] = await invoke('predict_image').catch((error) => {
         console.error('预测过程出错:', error)
       })
       console.log('预测结果:', { x, y, label_id })
@@ -138,6 +129,12 @@ const startDetection = async () => {
       }
       const type = typeMap[label_id]
       if (type) {
+        const flag = typeToNumber[type]
+        if (trash_number == 1) {
+          await invoke('broad',{flag:flag})
+        } else {
+          await invoke('xy_run',{x: x,y: y,flag:flag})
+        }
         addTrash(type)
       }
 
@@ -150,6 +147,9 @@ const startDetection = async () => {
 onMounted(async () => {
   await invoke('initialize_model').catch((error) => {
     console.error('模型初始化失败:', error)
+  })
+  await invoke('xy_init').catch((error) => {
+    console.error('XY-CORTEX-ERROR',error)
   })
   startDetection()
 })
@@ -233,24 +233,6 @@ h1 {
   align-items: center;
 }
 
-.progress-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 10px;
-  background-color: #4CAF50;
-  animation: progress 1s linear;
-}
-
-@keyframes progress {
-  0% {
-    width: 0;
-  }
-
-  100% {
-    width: 100%;
-  }
-}
 
 .history li:last-child {
   border-bottom: none;
