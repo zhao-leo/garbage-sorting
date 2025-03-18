@@ -8,7 +8,6 @@
 </template>
 
 <script>
-// import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import { useRouter } from 'vue-router';
 import { onMounted, onUnmounted } from 'vue';
@@ -21,27 +20,6 @@ export default {
       router.push({ name: 'Panel' });
     };
 
-    // const setupEventListener = async () => {
-    //   console.log('Setting up event listener...'); // 添加日志
-    //   try {
-    //     await listen('serial-data-received', (event) => {
-    //       console.log('Event received:', event); // 添加日志
-    //       const receivedData = event.payload;
-    //       console.log('Received data in frontend:', receivedData);
-    //       if (receivedData && receivedData.trim() !== '') {
-    //         navigateToNewPage();
-    //       }
-    //     });
-    //     console.log('Invoking listen_serial_port...'); // 添加日志
-    //     await invoke('listen_serial_port');
-    //     console.log('Successfully invoked listen_serial_port'); // 添加日志
-
-
-    //   } catch (error) {
-    //     console.error('Error in setupEventListener:', error); // 修改错误日志
-    //   }
-    // };
-
     const setupEventListener = async () => {
       while (1) {
         await invoke('capture_and_save'); // 捕获图像并发送到后端
@@ -49,9 +27,9 @@ export default {
         await new Promise(resolve => setTimeout(resolve, 500)); // 等待0.5秒
 
         // 获取预测结果并检查
-        const [_x, _y, label_id] = await invoke('predict_image').catch((error) => {
+        const [_x, _y, label_id,_num] = await invoke('predict_image').catch((error) => {
           console.error('预测过程出错:', error);
-          return [null, null, null];
+          return [null, null, null],null;
         });
 
         // 如果获得有效的预测结果，跳转到面板页面
