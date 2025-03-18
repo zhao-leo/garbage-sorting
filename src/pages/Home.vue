@@ -1,9 +1,10 @@
 <template>
   <div class="video-container" @click="navigateToNewPage">>
-    <video ref="videoPlayer" autoplay loop class="background-video">
+    <!-- <video ref="videoPlayer" autoplay loop class="background-video">
       <source src="@/assets/1.mp4" type="video/mp4">
       Your browser does not support the video tag.
-    </video>
+    </video> -->
+    <img src="@/assets/1.gif" alt="Background" class="background-video" />
   </div>
 </template>
 
