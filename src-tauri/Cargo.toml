@@ -28,3 +28,4 @@ opencv = {version = "0.94.2",features = ["clang-runtime"] }
 yolo_binding = {path = "./src/yolo_binding"}
 lazy_static = "1.5.0"
 serialport = "4.5.0"
+rppal = "0.22.1"

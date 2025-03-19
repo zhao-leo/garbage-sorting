@@ -52,9 +52,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
-// import { useRouter } from 'vue-router'
+import { listen } from '@tauri-apps/api/event';
 
-// const router = useRouter()
 const trashCounts = ref({
   recyclable: 0,
   harmful: 0,
@@ -80,6 +79,7 @@ const typeToChineseMap = {
 const trashHistory = ref([])
 const MAX_HISTORY = 10
 const showAlert = ref(false)
+
 // 添加新的垃圾记录
 const addTrash = (type) => {
   trashCounts.value[type]++
@@ -92,7 +92,7 @@ const addTrash = (type) => {
 }
 
 // 延迟函数
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+// const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 // 循环检测功能
 const startDetection = async () => {

@@ -25,24 +25,19 @@ export default {
       while (1) {
         await invoke('capture_and_save'); // 捕获图像并发送到后端
         console.log('Image captured'); // 添加日志
-        await new Promise(resolve => setTimeout(resolve, 500)); // 等待0.5秒
-
-        // 获取预测结果并检查
-        const [_x, _y, label_id,_num] = await invoke('predict_image').catch((error) => {
-          console.error('预测过程出错:', error);
-          return [null, null, null],null;
+        await new Promise(resolve => setTimeout(resolve, 3000)); // 等待3秒
+        const result = await invoke('similiarity').catch((error) => {
+          console.error('Error invoking similarity:', error); // 添加错误日志
+          return null; // 返回null以避免后续代码执行
         });
-
-        // 如果获得有效的预测结果，跳转到面板页面
-        if (label_id !== null && label_id !== undefined) {
-          console.log('检测到物体，跳转到面板页面');
-          navigateToNewPage();
-          break; // 退出循环
+        if (result) {
+          router.push({name:'Panel'});
         }
       }
     }
     onMounted(() => {
       invoke('initialize_model'); // 初始化模型
+      invoke('get_basic_image'); // 获取基本图像
       console.log('Component mounted');
       setupEventListener();
     });
