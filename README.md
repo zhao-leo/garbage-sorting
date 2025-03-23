@@ -63,10 +63,14 @@ graph TD
 7. 将构建出的`deb`包放在`/tmp`下，使用`apt`安装即可
 
 ## 相关项目链接
-
 [tch-rs](https://github.com/LaurentMazare/tch-rs)
+
 [GRBL](https://github.com/gnea/grbl/)
+
 [tauri](https://tauri.app/start/)
+
 [yolo_binding](https://github.com/zhao-leo/yolo_binding)
+
 [opencv-rust](https://github.com/twistedfall/opencv-rust)
+
 [install-opencv-on-ubuntu](https://github.com/twistedfall/opencv-rust/blob/master/ci/install-ubuntu.sh)
