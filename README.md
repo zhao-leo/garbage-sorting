@@ -74,3 +74,8 @@ graph TD
 [opencv-rust](https://github.com/twistedfall/opencv-rust)
 
 [install-opencv-on-ubuntu](https://github.com/twistedfall/opencv-rust/blob/master/ci/install-ubuntu.sh)
+
+## 如何联系我
+[给我发邮件](mailto:zhao@zhaocloud.work)
+
+> PS: 除了这种我还有一种比较新的结构(无代码，仅供参考)，欢迎联系😉
