@@ -3,7 +3,7 @@ use std::thread;
 use std::time::Duration;
 use rppal::gpio::{Gpio, InputPin, Level, Trigger};
 use tauri::Manager;
-
+use tauri::Emitter;
 pub struct GpioManager {
     input_pin: Option<InputPin>,
     running: Arc<Mutex<bool>>,

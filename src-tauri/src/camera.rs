@@ -163,14 +163,14 @@ pub fn similarity(threshold: f64) -> Result<bool> {
         &mut basic_gray,
         imgproc::COLOR_BGR2GRAY,
         0,
-        opencv::core::AlgorithmHint::ALGO_HINT_ACCURATE,
+        1,
     )?;
     imgproc::cvt_color(
         &resized_capture,
         &mut capture_gray,
         imgproc::COLOR_BGR2GRAY,
         0,
-        opencv::core::AlgorithmHint::ALGO_HINT_ACCURATE,
+        1,
     )?;
 
     // 计算像素差异
